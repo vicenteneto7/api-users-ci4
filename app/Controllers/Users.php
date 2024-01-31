@@ -13,7 +13,19 @@ class Users extends ResourceController
      *
      * @return ResponseInterface
      */
-    public function indexCreate()
+    public function index()
+    {
+        $model = new UsersModel();
+        $data = $model->findAll();
+        return $this->respond($data);
+    }
+
+    /**
+     * Return the properties of a resource object
+     *
+     * @return mixed
+     */
+    public function create()
     {
         helper(['form']);
         $rules = [
@@ -44,6 +56,19 @@ class Users extends ResourceController
      */
     public function delete($id = null)
     {
-        //
+        $model = new UsersModel();
+        $model->where('id', $id)->delete();
+
+        if(!$id) return $this->failNotFound('No Data Found');
+        $model->delete($id);
+        $response = [
+            'status' => 200,
+            'error' => null,
+            'messages' => [
+                'success' => 'Data Deleted'
+            ]
+        ];
+        return $this->respond($response);
+
     }
 }

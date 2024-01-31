@@ -5,4 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->post('/', 'Users::indexCreate');
+
+$routes->get('/users', 'Users::index');
+$routes->post('/', 'Users::create');
+$routes->get('/users/(:num)', 'Users::delete/$1');
