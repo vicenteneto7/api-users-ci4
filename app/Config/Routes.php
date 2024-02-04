@@ -5,7 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-
-$routes->get('/users', 'Users::index');
-$routes->post('/', 'Users::create');
-$routes->get('/users/(:num)', 'Users::delete/$1');
+$routes->get('/usuarios', 'Users::index');
+$routes->post('/usuarios', 'Users::create');
+$routes->delete('/usuarios/(:num)', 'Users::delete/$1');
+$routes->patch('/usuarios/update/(:num)', 'Users::update/$1');
