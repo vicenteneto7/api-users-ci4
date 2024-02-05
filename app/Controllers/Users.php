@@ -127,4 +127,43 @@ class Users extends ResourceController
         ];
         return $this->respond($response);
     }
+    public function login()
+    {
+
+        $model = new UsersModel();
+
+        $email = $this->request->getVar('email');
+        $password = $this->request->getVar('password');
+
+        $is_email = $model->where('email', $email)->first();
+
+        if ($is_email) {
+            $verifPassword = password_verify($password, $is_email['password']);
+            if ($verifPassword) {
+                return $this->respondCreated([
+                    'status' => 200,
+                    'error' => null,
+                    'messages' => [
+                        'success' => 'Usuário logado com sucesso'
+                    ]
+                ]);
+            } else {
+                return $this->respondCreated([
+                    'status' => 404,
+                    'error' => true,
+                    'messages' => [
+                        'success' => 'Email ou senha incorretos'
+                    ]
+                    ]);
+            } 
+        } else {
+            return $this->respondCreated([
+                'status' => 404,
+                'error' => true,
+                'messages' => [
+                    'success' => 'Email ou senha incorretos'
+                ]
+                ]);
+        }
+    }
 }

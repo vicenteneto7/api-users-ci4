@@ -14,8 +14,9 @@ class UsersModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'id',
+        'email',
+        'password',
         'name',
-        'age'
     ];
 
     protected bool $allowEmptyInserts = false;
