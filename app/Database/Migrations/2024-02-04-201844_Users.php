@@ -14,13 +14,17 @@ class Users extends Migration
                 'constraint' => 5,
                 'auto_increment' => true
             ],
-            'name' => [
+            'email' => [
                 'type' => 'VARCHAR',
                 'constraint' => 200,
             ],
-            'age' => [
+            'password' => [
                 'type' => 'INT',
-                'constraint' => 11,
+                'constraint' => 200,
+            ],
+            'name' => [
+                'type' => 'VARCHAR',
+                'constraint' => 200,
             ],
         ]);
         $this->forge->addKey('id', true);
