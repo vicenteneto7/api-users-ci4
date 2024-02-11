@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
+use App\Models\UsersModel;
+use Firebase\JWT\JWT;
 
 class Login extends ResourceController
 {
@@ -14,7 +16,7 @@ class Login extends ResourceController
      */
     public function index()
     {
-        echo view('/');
+        //tela de login
     }
 
     /**
@@ -22,9 +24,57 @@ class Login extends ResourceController
      *
      * @return ResponseInterface
      */
-    public function show($id = null)
+    public function login()
     {
-        //
+
+        $model = new UsersModel();
+
+        $email = $this->request->getVar('email');
+        $password = $this->request->getVar('password');
+
+        $is_email = $model->where('email', $email)->first();
+
+        if ($is_email) {
+            $verifPassword = password_verify($password, $is_email['password']);
+            if ($verifPassword) {
+                $key = '71562974cb3965dbc5102a73e6d84dd5';
+                $payload = [
+                    'iss' => 'localhost',
+                    'aud' => 'localhost',
+                    //
+                    'data' => [
+                        'id' => $is_email['id'],
+                        'email' => $is_email['email'],
+                        'password' => $is_email['password'],
+                    ]
+                ];
+                $jwt = JWT::encode($payload, $key, 'HS256');
+                return $this->respondCreated([
+                    'status' => 200,
+                    'jwt' => $jwt,
+                    'error' => null,
+                    'messages' => [
+                        'success' => 'Usuário logado com sucesso'
+                    ]
+                ]);
+            } else {
+                return $this->respondCreated([
+                    'status' => 404,
+                    'error' => true,
+                    'messages' => [
+                        'success' => 'Email ou senha incorretos'
+                    ]
+                    ]);
+            } 
+        } else {
+            return $this->respondCreated([
+                'status' => 404,
+                'error' => true,
+                'messages' => [
+                    'success' => 'Email ou senha incorretos'
+                ]
+                ]);
+        }
     }
 
     /**
@@ -32,48 +82,4 @@ class Login extends ResourceController
      *
      * @return ResponseInterface
      */
-    public function new()
-    {
-        //
-    }
-
-    /**
-     * Create a new resource object, from "posted" parameters
-     *
-     * @return ResponseInterface
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Return the editable properties of a resource object
-     *
-     * @return ResponseInterface
-     */
-    public function edit($id = null)
-    {
-        //
-    }
-
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return ResponseInterface
-     */
-    public function update($id = null)
-    {
-        //
-    }
-
-    /**
-     * Delete the designated resource object from the model
-     *
-     * @return ResponseInterface
-     */
-    public function delete($id = null)
-    {
-        //
-    }
 }

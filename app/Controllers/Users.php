@@ -5,6 +5,8 @@ namespace App\Controllers;
 use App\Models\UsersModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class Users extends ResourceController
 {
@@ -13,11 +15,32 @@ class Users extends ResourceController
      *
      * @return ResponseInterface
      */
-    public function index()
+    public function listUser()
     {
         $model = new UsersModel();
         $data = $model->findAll();
-        return $this->respond($data);
+
+        $request = service('request');
+        $key = '71562974cb3965dbc5102a73e6d84dd5';
+        $headers = $request->getHeader('authorization');
+        $jwt = $headers->getValue();
+        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
+        return $this->respond([
+            'status' => 200,
+                'error' => false,
+                'messages' => [
+                    'sucess' => 'Lista encontrada'
+                ],
+                'users' => $data
+        ]);kkk
+
+        
+       
+
+       
+
+       // $userData = '';
+
     }
 
     /**
@@ -50,11 +73,11 @@ class Users extends ResourceController
 
         $is_email = $model->where('email', $this->request->getVar('email'))->first();
         if ($is_email) {
-            return $this->respondCreated([
+            return $this->respond([
                 'status' => 404,
                 'error' => true,
                 'messages' => [
-                    'fail' => 'Esse email já existe'
+                    'error' => 'Esse email já existe na base de dados'
                 ]
             ]);
         } else {
@@ -62,9 +85,9 @@ class Users extends ResourceController
             $response = [
                 'data' => $data,
                 'status' => 201,
-                'error' => null,
+                'error' => false,
                 'messages' => [
-                    'success' => 'Data Inserted'
+                    'success' => 'Usuário criado'
                 ]
             ];
             return $this->respondCreated($response);
@@ -88,19 +111,26 @@ class Users extends ResourceController
         ];
         $data = [
             'email' => $this->request->getVar('email'),
-            'password' => $this->request->getVar('password'),
+            'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
             'name' => $this->request->getVar('name')
         ];
+
+        $request = service('request');
+        $key = '71562974cb3965dbc5102a73e6d84dd5';
+        $headers = $request->getHeader('authorization');
+        $jwt = $headers->getValue();
+        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
+
         if (!$this->validate($rules)) return $this->fail($this->validator->getErrors());
         $model = new UsersModel();
         $findById = $model->find(['id' => $id]);
-        if (!$findById) return $this->failNotFound('No Data Found');
+        if (!$findById) return $this->failNotFound('Usuário não encontrado');
         $model->update($id, $data);
         $response = [
             'status' => 200,
             'error' => null,
             'messages' => [
-                'success' => 'Data Updated'
+                'success' => 'Informações atualizadas'
             ]
         ];
         return $this->respond($response);
@@ -114,56 +144,25 @@ class Users extends ResourceController
     public function delete($id = null)
     {
         $model = new UsersModel();
+
+        $request = service('request');
+        $key = '71562974cb3965dbc5102a73e6d84dd5';
+        $headers = $request->getHeader('authorization');
+        $jwt = $headers->getValue();
+        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
+
         $model->where('id', $id)->delete();
 
-        if (!$id) return $this->failNotFound('No Data Found');
+        if (!$id) return $this->failNotFound('Usuário não encontrado');
         $model->delete($id);
         $response = [
             'status' => 200,
             'error' => null,
             'messages' => [
-                'success' => 'Data Deleted'
+                'success' => 'Usuário deletado'
             ]
         ];
         return $this->respond($response);
     }
-    public function login()
-    {
-
-        $model = new UsersModel();
-
-        $email = $this->request->getVar('email');
-        $password = $this->request->getVar('password');
-
-        $is_email = $model->where('email', $email)->first();
-
-        if ($is_email) {
-            $verifPassword = password_verify($password, $is_email['password']);
-            if ($verifPassword) {
-                return $this->respondCreated([
-                    'status' => 200,
-                    'error' => null,
-                    'messages' => [
-                        'success' => 'Usuário logado com sucesso'
-                    ]
-                ]);
-            } else {
-                return $this->respondCreated([
-                    'status' => 404,
-                    'error' => true,
-                    'messages' => [
-                        'success' => 'Email ou senha incorretos'
-                    ]
-                    ]);
-            } 
-        } else {
-            return $this->respondCreated([
-                'status' => 404,
-                'error' => true,
-                'messages' => [
-                    'success' => 'Email ou senha incorretos'
-                ]
-                ]);
-        }
-    }
+    
 }
