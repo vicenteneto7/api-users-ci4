@@ -32,16 +32,16 @@ class Users extends ResourceController
                     'sucess' => 'Lista encontrada'
                 ],
                 'users' => $data
-        ]);kkk
+        ]);
 
         
        
 
        
 
-       // $userData = '';
-
     }
+
+    
 
     /**
      * Return the properties of a resource object
