@@ -38,6 +38,7 @@ class Login extends ResourceController
             $verifPassword = password_verify($password, $is_email['password']);
             if ($verifPassword) {
                 $key = '71562974cb3965dbc5102a73e6d84dd5';
+                $name = $is_email['name'];
                 $payload = [
                     'iss' => 'localhost',
                     'aud' => 'localhost',
@@ -50,30 +51,19 @@ class Login extends ResourceController
                 ];
                 $jwt = JWT::encode($payload, $key, 'HS256');
                 return $this->respondCreated([
-                    'status' => 200,
+                    'status' => 201,
                     'jwt' => $jwt,
-                    'error' => null,
+                    'name' => $name,
+                    'error' => false,
                     'messages' => [
                         'success' => 'Usuário logado com sucesso'
                     ]
                 ]);
             } else {
-                return $this->respondCreated([
-                    'status' => 404,
-                    'error' => true,
-                    'messages' => [
-                        'success' => 'Email ou senha incorretos'
-                    ]
-                    ]);
-            } 
+                return $this->failNotFound("Email ou senha incorretos");
+            }
         } else {
-            return $this->respondCreated([
-                'status' => 404,
-                'error' => true,
-                'messages' => [
-                    'success' => 'Email ou senha incorretos'
-                ]
-                ]);
+            return $this->failNotFound("Email ou senha incorretos");
         }
     }
 

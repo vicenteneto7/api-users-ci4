@@ -14,12 +14,16 @@ class Users extends Migration
                 'constraint' => 5,
                 'auto_increment' => true
             ],
+            'admin' => [
+                'type' => 'BOOLEAN',
+                'default' => false
+            ],
             'email' => [
                 'type' => 'VARCHAR',
                 'constraint' => 200,
             ],
             'password' => [
-                'type' => 'INT',
+                'type' => 'VARCHAR',
                 'constraint' => 200,
             ],
             'name' => [

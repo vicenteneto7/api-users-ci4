@@ -20,26 +20,16 @@ class Users extends ResourceController
         $model = new UsersModel();
         $data = $model->findAll();
 
-        $request = service('request');
-        $key = '71562974cb3965dbc5102a73e6d84dd5';
-        $headers = $request->getHeader('authorization');
-        $jwt = $headers->getValue();
-        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
-        return $this->respond([
-            'status' => 200,
-                'error' => false,
-                'messages' => [
-                    'sucess' => 'Lista encontrada'
-                ],
-                'users' => $data
-        ]);kkk
-
         
-       
 
-       
+        return $this->respond($data);
 
-       // $userData = '';
+
+
+
+
+
+        // $userData = '';
 
     }
 
@@ -73,13 +63,14 @@ class Users extends ResourceController
 
         $is_email = $model->where('email', $this->request->getVar('email'))->first();
         if ($is_email) {
-            return $this->respond([
-                'status' => 404,
+            $response = [
+                'status' => 409,
                 'error' => true,
                 'messages' => [
-                    'error' => 'Esse email já existe na base de dados'
+                    'error' => 'E-mail já existe'
                 ]
-            ]);
+            ];
+            return $this->failResourceExists(409);
         } else {
             $model->save($data);
             $response = [
@@ -102,32 +93,21 @@ class Users extends ResourceController
 
     public function update($id = null)
     {
-        helper(['form']);
-        $rules = [
-            'email' => 'required|valid_email',
-            'password' => 'required',
-            'name' => 'required',
-
-        ];
+       
         $data = [
             'email' => $this->request->getVar('email'),
             'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
             'name' => $this->request->getVar('name')
         ];
 
-        $request = service('request');
-        $key = '71562974cb3965dbc5102a73e6d84dd5';
-        $headers = $request->getHeader('authorization');
-        $jwt = $headers->getValue();
-        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
-
-        if (!$this->validate($rules)) return $this->fail($this->validator->getErrors());
         $model = new UsersModel();
+
         $findById = $model->find(['id' => $id]);
+
         if (!$findById) return $this->failNotFound('Usuário não encontrado');
         $model->update($id, $data);
         $response = [
-            'status' => 200,
+            'status' => 201,
             'error' => null,
             'messages' => [
                 'success' => 'Informações atualizadas'
@@ -145,18 +125,13 @@ class Users extends ResourceController
     {
         $model = new UsersModel();
 
-        $request = service('request');
-        $key = '71562974cb3965dbc5102a73e6d84dd5';
-        $headers = $request->getHeader('authorization');
-        $jwt = $headers->getValue();
-        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
-
         $model->where('id', $id)->delete();
 
         if (!$id) return $this->failNotFound('Usuário não encontrado');
+
         $model->delete($id);
         $response = [
-            'status' => 200,
+            'status' => 201,
             'error' => null,
             'messages' => [
                 'success' => 'Usuário deletado'
@@ -164,5 +139,4 @@ class Users extends ResourceController
         ];
         return $this->respond($response);
     }
-    
 }
