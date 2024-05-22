@@ -19,19 +19,24 @@ class Users extends ResourceController
     {
         $model = new UsersModel();
         $data = $model->findAll();
-
-        
+        $request = service('request');
+        $key = '71562974cb3965dbc5102a73e6d84dd5';
+        $headers = $request->getHeader('authorization');
+        $jwt = $headers->getValue();
+        $userData = JWT::decode($jwt, new Key($key, 'HS256'));
+        return $this->respond([
+            'status' => 200,
+                'error' => false,
+                'messages' => [
+                    'sucess' => 'Lista encontrada'
+                ],
+                'users' => $data
+        ]);
 
         return $this->respond($data);
-
-
-
-
-
-
-        // $userData = '';
-
     }
+
+    
 
     /**
      * Return the properties of a resource object
